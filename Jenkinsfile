@@ -1,34 +1,32 @@
 node{
 
-   def tomcatWeb = 'C:\\apache-tomcat-9.0.64\\webapps'
-   def tomcatBin = 'C:\\apache-tomcat-9.0.64\\bin'
+   def tomcatWeb = 'path for tomcat/webapps'
+   def tomcatBin = 'path for tomcat/bin'
    def tomcatStatus = ''
    stage('SCM Checkout'){
      git 'https://github.com/satyakalki/cicd.git'
    }
-   stage('Compile-Package-create-war-file'){
-      // Get maven home path
-      def mvnHome =  tool name: 'Maven', type: 'maven'   
-      bat "${mvnHome}/bin/mvn package"
+   stage('Compile-Package-create-war-file'){ 
+     sh "mvn package"
       }
 /*   stage ('Stop Tomcat Server') {
-               bat ''' @ECHO OFF
-               wmic process list brief | find /i "tomcat" > NUL
-               IF ERRORLEVEL 1 (
-                    echo  Stopped
-               ) ELSE (
-               echo running
-                  "${tomcatBin}\\shutdown.bat"
-                  sleep(time:10,unit:"SECONDS") 
-               )
+            sh ''' @Echo off
+              kilall tomcat
+			   if [ "$? -eq 0" ]; then 
+				echo " stopped";
+				else
+					echo running
+                  "${tomcatBin}\\shutdown.sh"
+                  sleep 10
+               fi
 '''
    }*/
    stage('Deploy to Tomcat'){
-     bat "copy target\\JenkinsPipeline.war \"${tomcatWeb}\\JenkinsPipeline.war\""
+     sh "cp target/JenkinsPipeline.war \"${tomcatWeb}/JenkinsPipeline.war/""
    }
       stage ('Start Tomcat Server') {
-         sleep(time:5,unit:"SECONDS") 
-         bat "${tomcatBin}\\startup.bat"
-         sleep(time:100,unit:"SECONDS")
+         sleep 5 
+         sh "${tomcatBin}\\startup.sh"
+         sleep 10
    }
 }
